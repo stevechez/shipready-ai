@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "@shipready/config library",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  }
+}

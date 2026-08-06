@@ -1,0 +1,7 @@
+{
+  "name": "@shipready/config-tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared strict TypeScript presets for all ShipReady packages.",
+  "files": ["base.json", "library.json"]
+}

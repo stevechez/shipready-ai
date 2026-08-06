@@ -1,0 +1,27 @@
+{
+  "name": "@shipready/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The `shipready` CLI — orchestrates providers locally and reports results (client of the core).",
+  "type": "module",
+  "bin": {
+    "shipready": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "@shipready/core": "workspace:*",
+    "@shipready/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.6"
+  }
+}
