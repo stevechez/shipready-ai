@@ -23,6 +23,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "resolveJsonModule": true,
+    "baseUrl": ".",
     "paths": {
       "@shipready/schema": ["../schema/src/index.ts"],
       "@shipready/core": ["../core/src/index.ts"]
