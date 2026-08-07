@@ -1,5 +1,7 @@
 import type { Severity } from '@shipready/schema';
 
+export { evaluatePolicy } from './policy/evaluate';
+
 /**
  * Describes the provider-blind core (post ADR-001; this package was formerly conceived as the
  * bespoke "engine"). The core reasons only about canonical findings — never about which
@@ -17,8 +19,7 @@ export const CORE_INFO: CoreInfo = {
 
 /**
  * Sprint 0 placeholder proving the schema→core dependency edge and the canonical severity
- * ordering. Real normalization, correlation, coverage, and policy evaluation land in later
- * sprints.
+ * ordering. Real normalization and correlation land in later sprints.
  */
 export function highestSeverity(): Severity {
   return 'critical';
