@@ -72,6 +72,23 @@ describe('evaluatePolicy', () => {
     expect(result.verdict.tier).toBe('blocked');
   });
 
+  it('lets insufficient_coverage take precedence over a failed control', () => {
+    const finding = makeFinding();
+    const policy: Policy = {
+      ...basePolicy,
+      requiredCoverage: [{ language: 'ts', categories: ['authorization'] }],
+    };
+    const result = evaluatePolicy([finding], emptyCoverage, policy, NOW);
+    expect(result.verdict.decision).toBe('insufficient_coverage');
+    expect(result.verdict.tier).toBe('blocked');
+    expect(result.verdict.reasons).toContainEqual(
+      expect.stringContaining('required coverage not met:'),
+    );
+    expect(result.verdict.reasons.some((reason) => reason.includes('NO-DATA-EXPOSURE'))).toBe(
+      false,
+    );
+  });
+
   it('sets tier at_risk when passing but an open finding matches atRiskIf', () => {
     const policy: Policy = { ...basePolicy, controls: [] };
     const finding = makeFinding({ category: 'security' });
