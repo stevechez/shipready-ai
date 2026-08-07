@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
 import type { CoverageReport, Policy, PolicyFinding } from '@shipready/schema';
+import { describe, expect, it } from 'vitest';
 import { evaluatePolicy } from './evaluate';
 
 /**
@@ -125,12 +125,7 @@ describe('golden scenario: PROVIDER_ARCHITECTURE.md §11', () => {
   };
 
   it('blocks on NO-DATA-EXPOSURE and TYPES-COMPILE with sufficient coverage', () => {
-    const result = evaluatePolicy(
-      findings,
-      coverage,
-      policy,
-      new Date('2026-08-07T00:00:00.000Z'),
-    );
+    const result = evaluatePolicy(findings, coverage, policy, new Date('2026-08-07T00:00:00.000Z'));
 
     expect(result.verdict.decision).toBe('fail');
     expect(result.verdict.tier).toBe('blocked');
