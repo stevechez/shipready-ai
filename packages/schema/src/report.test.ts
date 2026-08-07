@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { ReportFindingSchema } from './report';
 import { PolicyFindingSchema } from './policy';
+import { ReportFindingSchema } from './report';
 
 const validReportFinding = {
   schemaVersion: '0.0.0',
