@@ -15,8 +15,7 @@
     "lint": "biome check ."
   },
   "dependencies": {
-    "@shipready/core": "workspace:*",
-    "@shipready/schema": "workspace:*"
+    "@shipready/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
