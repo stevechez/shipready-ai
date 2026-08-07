@@ -12,7 +12,7 @@
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "lint": "biome check . && pnpm run depcruise",
+    "lint": "biome check . && turbo run lint && pnpm run depcruise",
     "format": "biome format --write .",
     "depcruise": "depcruise packages apps --config .dependency-cruiser.cjs",
     "audit": "pnpm audit --audit-level=high",
