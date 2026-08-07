@@ -78,7 +78,11 @@ export const GateSchema = z.object({
 });
 export type Gate = z.infer<typeof GateSchema>;
 
-/** An org re-ranking a canonical rule's severity (§5.1). */
+/**
+ * An org re-ranking a canonical rule's severity (§5.1). `severityOverrides` are accepted and
+ * validated by the schema but not yet applied by `evaluatePolicy()` this sprint — see §8 of
+ * docs/superpowers/specs/2026-08-07-policy-engine-design.md (severity-override application is deferred).
+ */
 export const SeverityOverrideSchema = z.object({
   rule: CatalogRuleIdSchema,
   severity: SeveritySchema,

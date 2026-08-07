@@ -162,6 +162,7 @@ testing convention (`AUDIT_ENGINE.md`: "golden known-good/known-bad per rule").
 
 ## 8. Explicit non-goals
 
-No scoring math (§2). No `onlyDeterministic` filtering (§3). No YAML file loading/parsing — `evaluatePolicy`
-takes an in-memory, already-validated `Policy` object; loading `shipready.policy.yaml` from disk is CLI
-orchestration, a later sprint. No catalog service. No normalization pipeline. No CLI integration.
+No scoring math (§2). No `onlyDeterministic` filtering (§3). No `severityOverrides` application (deferred to
+a later sprint). No YAML file loading/parsing — `evaluatePolicy` takes an in-memory, already-validated
+`Policy` object; loading `shipready.policy.yaml` from disk is CLI orchestration, a later sprint. No catalog
+service. No normalization pipeline. No CLI integration.
