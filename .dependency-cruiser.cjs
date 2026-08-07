@@ -1,12 +1,19 @@
 /**
  * Dependency-cruiser — encodes the locked layering rules (PROJECT_STRUCTURE.md §2,
- * PROVIDER_ARCHITECTURE.md). The package graph is: schema ← core ← cli, with apps/web as an
- * additional leaf consumer (SPRINTS.md S9+: apps/web is where server-side policy evaluation
- * eventually runs, so it may depend on schema/core; nothing may depend on apps/web).
+ * PROVIDER_ARCHITECTURE.md, ADR-006, ADR-007). The graph is:
+ *
+ *   schema ← core ← cli
+ *   schema ← apps/web            (apps/web is the application layer, ADR-007)
  *
  * - schema depends on nothing internal (it is the contract).
  * - core (the provider-blind normalization→policy→report core) must never depend on the cli.
+ * - apps/web may depend on @shipready/schema only. @shipready/core is deliberately NOT allowed
+ *   yet (ADR-007): until a narrow @shipready/sdk boundary exists, the application layer has no
+ *   sanctioned way to reach core's internals, by design.
  * - apps/web is never imported by packages/(schema|core|cli) — it is a leaf, not a dependency.
+ * - no consumer may reach past core's public barrel (index.ts) into its internals — this is
+ *   what protects future provider/policy/scanner internals (ADR-007) without a rule needed per
+ *   subdirectory as core grows.
  * - no circular dependencies anywhere.
  *
  * Cross-package imports (`@shipready/*`) resolve to each package's `src` via the tsconfig
@@ -38,6 +45,33 @@ module.exports = {
       severity: 'error',
       from: { path: '^packages/(schema|core|cli)/src' },
       to: { path: '^apps/web' },
+    },
+    {
+      name: 'web-may-not-import-core',
+      comment:
+        "ADR-007: apps/web's allowed internal dependency is @shipready/schema only. " +
+        '@shipready/core is off-limits until a dedicated @shipready/sdk boundary exists.',
+      severity: 'error',
+      from: { path: '^apps/web' },
+      to: { path: '^packages/core/src' },
+    },
+    {
+      name: 'web-may-not-import-cli',
+      comment: 'cli is a leaf orchestration entrypoint; nothing else may depend on it.',
+      severity: 'error',
+      from: { path: '^apps/web' },
+      to: { path: '^packages/cli/src' },
+    },
+    {
+      name: 'respect-core-barrel',
+      comment:
+        'No consumer outside packages/core/src may import a file inside it other than its ' +
+        'index.ts entry point (ADR-007). This is the mechanism that will protect future ' +
+        'provider/policy/scanner internals as core grows, without needing a new rule per ' +
+        'subdirectory.',
+      severity: 'error',
+      from: { pathNot: '^packages/core/src' },
+      to: { path: '^packages/core/src/(?!index\\.ts$).+' },
     },
     {
       name: 'no-circular',
