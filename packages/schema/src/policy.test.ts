@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { PolicyEvaluationInputSchema, PolicyFindingSchema, PolicyResultSchema } from './policy';
+import {
+  ControlSchema,
+  GateSchema,
+  PolicyEvaluationInputSchema,
+  PolicyFindingSchema,
+  PolicyResultSchema,
+  PolicySchema,
+} from './policy';
 
 const validPolicyFinding = {
   schemaVersion: '0.0.0',
@@ -25,6 +32,34 @@ const validVerdict = {
   evaluatedAt: '2026-08-06T12:00:00.000Z',
 };
 
+const validPolicy = {
+  apiVersion: 'shipready.dev/policy/v1',
+  version: '2026.08.0',
+  name: 'Default — AI app readiness',
+  requiredCoverage: [{ language: 'ts', categories: ['authorization'], minAnalysisKind: 'taint' }],
+  controls: [
+    {
+      id: 'NO-DATA-EXPOSURE',
+      description: 'No open data-exposure finding at High or Critical severity',
+      match: { category: 'database', status: 'open', minSeverity: 'high' },
+      forbid: 'any',
+    },
+  ],
+  gate: {
+    failIf: { controlFailed: ['NO-DATA-EXPOSURE'] },
+    atRiskIf: { open: { severity: 'high', status: 'open' } },
+  },
+  severityOverrides: [{ rule: 'SR-AUTHZ-001', severity: 'info' }],
+  waivers: [
+    {
+      fingerprint: 'fp_xyz',
+      reason: 'vendored fixture',
+      approvedBy: 'u_123',
+      expires: '2026-12-31T00:00:00.000Z',
+    },
+  ],
+};
+
 describe('policy.ts', () => {
   it('parses a valid PolicyFinding (no provenance key, has corroborationCount)', () => {
     const parsed = PolicyFindingSchema.parse(validPolicyFinding);
@@ -37,13 +72,55 @@ describe('policy.ts', () => {
     expect(() => PolicyFindingSchema.parse(rest)).toThrow();
   });
 
-  it('parses a valid PolicyEvaluationInput', () => {
+  it('parses a valid Policy profile with controls, gate, requiredCoverage, and waivers', () => {
+    const parsed = PolicySchema.parse(validPolicy);
+    expect(parsed.controls).toHaveLength(1);
+    expect(parsed.gate.atRiskIf?.open?.severity).toBe('high');
+    expect(parsed.waivers).toHaveLength(1);
+  });
+
+  it('rejects a control with forbid other than "any"', () => {
+    const bad = {
+      id: 'X',
+      description: 'x',
+      match: {},
+      forbid: 'all',
+    };
+    expect(() => ControlSchema.parse(bad)).toThrow();
+  });
+
+  it('accepts a control with no match clauses (matches everything) and optional tightening fields', () => {
+    const control = {
+      id: 'X',
+      description: 'x',
+      match: {},
+      forbid: 'any',
+      onlyDeterministic: true,
+      requireCorroboration: 2,
+    };
+    expect(ControlSchema.parse(control)).toMatchObject({ requireCorroboration: 2 });
+  });
+
+  it('rejects a Gate missing failIf', () => {
+    expect(() => GateSchema.parse({})).toThrow();
+  });
+
+  it('parses a valid PolicyEvaluationInput with a real Policy profile', () => {
     const input = {
       findings: [validPolicyFinding],
       coverage: validCoverage,
-      policy: { version: '2026.08.0', name: 'Default — AI app readiness' },
+      policy: validPolicy,
     };
-    expect(PolicyEvaluationInputSchema.parse(input).findings).toHaveLength(1);
+    expect(PolicyEvaluationInputSchema.parse(input).policy.controls).toHaveLength(1);
+  });
+
+  it('rejects a PolicyEvaluationInput with the old placeholder policy shape', () => {
+    const input = {
+      findings: [validPolicyFinding],
+      coverage: validCoverage,
+      policy: { version: '2026.08.0', name: 'Default' },
+    };
+    expect(() => PolicyEvaluationInputSchema.parse(input)).toThrow();
   });
 
   it('parses a valid PolicyResult with an optional diagnostic score', () => {
